@@ -7,9 +7,9 @@ namespace GameOfLife
     public partial class MainWindow
     {
         private readonly Grid _mainGrid;
-        private readonly DispatcherTimer _timer; //  Generation timer
+        private readonly DispatcherTimer _timer;
         private int _genCounter;
-        private AdWindow[] _adWindow;
+        private AdWindow _adWindow;
 
 
         public MainWindow()
@@ -25,25 +25,18 @@ namespace GameOfLife
 
         private void StartAd()
         {
-            _adWindow = new AdWindow[2];
-            for (var i = 0; i < 2; i++)
-            {
-                if (_adWindow[i] != null) continue;
-                _adWindow[i] = new AdWindow(this);
-                _adWindow[i].Closed += AdWindowOnClosed;
-                _adWindow[i].Top = this.Top + (330*i) + 70;
-                _adWindow[i].Left = this.Left + 240;
-                _adWindow[i].Show();
-            }
+            if (_adWindow != null) return;
+            _adWindow = new AdWindow(this);                        
+            _adWindow.Closed += AdWindowOnClosed;
+            _adWindow.Top = Top + 400;
+            _adWindow.Left = Left + 240;
+            _adWindow.Show();            
         }
 
         private void AdWindowOnClosed(object sender, EventArgs eventArgs)
         {
-            for (var i = 0; i < 2; i++)
-            {
-                _adWindow[i].Closed -= AdWindowOnClosed;
-                _adWindow[i] = null;
-            }
+            _adWindow.Closed -= AdWindowOnClosed;
+            _adWindow = null;         
         }
 
 

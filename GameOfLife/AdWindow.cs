@@ -10,8 +10,8 @@ namespace GameOfLife
     internal class AdWindow : Window
     {
         private readonly DispatcherTimer _adTimer;
-        private int _imgNmb;     // the number of the image currently shown
-        private string _link;    // the URL where the currently shown ad leads to
+        private int _imgNmb;     // currently shown image 
+        private string _link;    // image URL
         
     
         public AdWindow(Window owner)
@@ -30,7 +30,7 @@ namespace GameOfLife
             _imgNmb = rnd.Next(1, 3);
             ChangeAds(this, new EventArgs());
 
-            // Run the timer that changes the ad's image 
+            // Run timer that changes ad's image 
             _adTimer = new DispatcherTimer {Interval = TimeSpan.FromSeconds(3)};
             _adTimer.Tick += ChangeAds;
             _adTimer.Start();
@@ -44,7 +44,7 @@ namespace GameOfLife
         
         protected override void OnClosed(EventArgs e)
         {
-//            Unsubscribe();
+            Unsubscribe();
             base.OnClosed(e);
         } 
 
