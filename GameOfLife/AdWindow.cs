@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -10,10 +12,10 @@ namespace GameOfLife
     internal class AdWindow : Window
     {
         private readonly DispatcherTimer _adTimer;
-        private int _imgNmb;     // currently shown image 
-        private string _link;    // image URL
-        
-    
+        private int _imgNmb; // currently shown image 
+        private string _link; // image URL
+
+
         public AdWindow(Window owner)
         {
             var rnd = new Random();
@@ -26,7 +28,7 @@ namespace GameOfLife
             Cursor = Cursors.Hand;
             ShowActivated = false;
             MouseDown += OnClick;
-            
+
             _imgNmb = rnd.Next(1, 3);
             ChangeAds(this, new EventArgs());
 
@@ -41,48 +43,78 @@ namespace GameOfLife
             System.Diagnostics.Process.Start(_link);
             Close();
         }
-        
+
         protected override void OnClosed(EventArgs e)
         {
-            Unsubscribe();
+            //Unsubscribe();
             base.OnClosed(e);
-        } 
+        }
 
         public void Unsubscribe()
         {
-            _adTimer.Tick -= ChangeAds;            
+            _adTimer.Tick -= ChangeAds;
         }
 
         private void ChangeAds(object sender, EventArgs eventArgs)
         {
-            
             var myBrush = new ImageBrush();
-            
+
             switch (_imgNmb)
             {
                 case 1:
                     myBrush.ImageSource =
-                        new BitmapImage(new Uri("ad1.png", UriKind.Relative));
+                        CreateBitmapSourceFromGdiBitmap(Properties.Resources.ad1);
                     Background = myBrush;
                     _link = "http://example.com";
                     _imgNmb++;
                     break;
                 case 2:
                     myBrush.ImageSource =
-                        new BitmapImage(new Uri("ad2.png", UriKind.Relative));
+                        CreateBitmapSourceFromGdiBitmap(Properties.Resources.ad2);
                     Background = myBrush;
                     _link = "http://example.com";
                     _imgNmb++;
                     break;
                 case 3:
                     myBrush.ImageSource =
-                        new BitmapImage(new Uri("ad3.png", UriKind.Relative));
+                        CreateBitmapSourceFromGdiBitmap(Properties.Resources.ad3);
                     Background = myBrush;
                     _link = "http://example.com";
                     _imgNmb = 1;
                     break;
             }
-            
+        }
+
+        public static BitmapSource CreateBitmapSourceFromGdiBitmap(Bitmap bitmap)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap));
+
+            var rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+
+            var bitmapData = bitmap.LockBits(
+                rect,
+                ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            try
+            {
+                var size = (rect.Width * rect.Height) * 4;
+
+                return BitmapSource.Create(
+                    bitmap.Width,
+                    bitmap.Height,
+                    bitmap.HorizontalResolution,
+                    bitmap.VerticalResolution,
+                    PixelFormats.Bgra32,
+                    null,
+                    bitmapData.Scan0,
+                    size,
+                    bitmapData.Stride);
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
+            }
         }
     }
 }
